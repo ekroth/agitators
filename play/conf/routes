@@ -1,0 +1,5 @@
+# Homepage
+GET	/			controllers.Application.index
+GET	/:nbr			controllers.Application.teddies(nbr: Int)
+
+GET 	/public/*file 		controllers.Assets.at(path="/public", file)

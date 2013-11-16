@@ -1,0 +1,62 @@
+@(teddies: Int)
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>@(s"Here are $teddies teddies")</title>
+
+        <style>
+                body {
+                        margin: 0;
+                        padding: 0;
+                        background-color: #FFFFFF;
+                }
+        </style>
+
+	<script src="@routes.Assets.at("javascripts/pixi.js/examples/example 1 - Basics/pixi.js")"></script>
+
+</head>
+<body>
+	<script>
+	
+	// create an new instance of a pixi stage
+	var stage = new PIXI.Stage(0x66FF99);
+	
+	// create a renderer instance
+	var renderer = PIXI.autoDetectRenderer(400, 300);
+	
+	// add the renderer view element to the DOM
+	document.body.appendChild(renderer.view);
+	
+	requestAnimFrame( animate );
+	
+	// create a texture from an image path
+	var texture = PIXI.Texture.fromImage("@routes.Assets.at("images/bunny.png")");
+	// create a new Sprite using the texture
+	var amount = @teddies;
+	var bunnies = new Array(amount)
+	for (i = 0; i < amount; i++) {
+		bunnies[i] = new PIXI.Sprite(texture);
+		bunnies[i].anchor.x = 0.5;
+		bunnies[i].anchor.y = 0.5;
+		bunnies[i].position.x = (i / amount) * 400;
+		bunnies[i].position.y = 150;
+		stage.addChild(bunnies[i]);
+	}
+	
+	
+	function animate() {
+	
+	    requestAnimFrame( animate );
+	
+	    for (i = 0; i < amount; i++) {
+                 bunnies[i].rotation += 0.1;
+            }
+		
+	    // render the stage   
+	    renderer.render(stage);
+	}
+
+	</script>
+	</body>
+</html>
