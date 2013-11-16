@@ -1,3 +1,5 @@
+
+### PlayFramework
 # Extracted from https://github.com/ulrich/macaron-factory/blob/master/.gitignore
 # Ignore all dotfiles...
 .*
@@ -20,3 +22,47 @@ test-result
 server.pid
 *.iml
 *.eml
+
+
+### Scala
+*.class
+*.log
+
+# sbt specific
+.cache/
+.history/
+.lib/
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# Scala-IDE specific
+.scala_dependencies
+
+
+### Emacs
+# -*- mode: gitignore; -*-
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Org-mode
+.org-id-locations
+*_archive
+
+# flymake-mode
+
+
+### Ensime
+# Ensime specific
+.ensime
+.ensime_lucene/
+*_flymake.*
