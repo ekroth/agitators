@@ -1,5 +1,13 @@
+# Map Bootstrap images
+GET     /assets/img/glyphicons-halflings.png            controllers.Assets.at(path="/public", file="/images/bootstrap/glyphicons-halflings.png")
+GET     /assets/img/glyphicons-halflings-white.png      controllers.Assets.at(path="/public", file="/images/bootstrap/glyphicons-halflings-white.png")
+
 # Homepage
 GET	/			controllers.Application.index
-GET	/:nbr			controllers.Application.teddies(nbr: Int)
+
+GET	/register		controllers.Application.register
+POST    /register               controllers.Application.submit
+
+GET	/teddies/:nbr		controllers.Application.teddies(nbr: Int)
 
 GET 	/public/*file 		controllers.Assets.at(path="/public", file)

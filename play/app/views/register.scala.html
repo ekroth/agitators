@@ -1,0 +1,13 @@
+@(myForm: Form[controllers.Bunny])
+
+@helper.form(action = routes.Application.submit) {
+    
+    @helper.inputText(myForm("x"))
+
+    @helper.inputText(myForm("y"))
+
+    @helper.inputText(myForm("w"))
+
+<input type="submit" value="Submit">
+    
+}
