@@ -1,5 +1,5 @@
 var ip = "ws://echo.websocket.org";
-var ip = "ws://192.168.1.2:3000";
+//var ip = "ws://192.168.1.2:3000";
 var output;
 var input;
 var nick;
@@ -35,16 +35,14 @@ function onOpen(evt) {
   write("onOpen", "green", "connected to "+ip);
 }
 
-hashCode = function(s){
-  return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
+hexHashCode = function(s){
+  return Math.abs(+(s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0)) % 4095).toString(16);              
 }
-
 
 function onMessage(evt) {
   try {
     obj = JSON.parse(evt.data);
-    var num = Math.abs(+hashCode(obj.nick) % 4095).toString(16);
-    write(obj.nick, "#"+num, obj.msg);
+    write(obj.nick, "#"+hexHashCode(obj.nick), obj.msg);
   }catch(err){
     write("error", "red", err);
   }
