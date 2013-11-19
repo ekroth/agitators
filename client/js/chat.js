@@ -1,5 +1,5 @@
 var ip = "ws://echo.websocket.org";
-//var ip = "ws://192.168.1.2:3000";
+var ip = "ws://192.168.1.2:3000";
 var output;
 var input;
 var nick;
@@ -40,11 +40,12 @@ hexHashCode = function(s){
 }
 
 function onMessage(evt) {
-  try {
-    obj = JSON.parse(evt.data);
-    write(obj.nick, "#"+hexHashCode(obj.nick), obj.msg);
+  try 
+    {
+    data = JSON.parse((evt.data));
+    write(data.nick, "#"+hexHashCode(data.nick), data.msg);
   }catch(err){
-    write("error", "red", err);
+    write("error", "red", err + "<br><b>data</b>: " + evt.data);
   }
 }
 
@@ -66,7 +67,7 @@ function write(name, color, text) {
   pre.style.wordWrap = "break-word";
   var span = document.createElement("span"); 
   span.style.color = color; 
-  span.innerHTML = name+": ";
+  span.innerHTML = "<b>"+name+"</b>: ";
   pre.appendChild(span)
   pre.innerHTML += text; 
   output.appendChild(pre);
