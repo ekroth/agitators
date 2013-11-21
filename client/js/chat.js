@@ -1,5 +1,5 @@
 var ip = "ws://echo.websocket.org";
-var ip = "ws://192.168.1.2:3000";
+//var ip = "ws://192.168.1.2:3000";
 var output;
 var input;
 var nick;
@@ -20,9 +20,9 @@ function inputListener(key) {
 
 function testSocket() {
   try {
-  socket = new WebSocket(ip);
+    socket = new WebSocket(ip);
   } catch (e) {
-  write("error","red","fail");
+    write("error","red","fail");
   }
   socket.onopen = function(evt) {onOpen(evt);};
   socket.onclose = function(evt) {onClose(evt);};
@@ -40,8 +40,7 @@ hexHashCode = function(s){
 }
 
 function onMessage(evt) {
-  try 
-    {
+  try {
     data = JSON.parse((evt.data));
     write(data.nick, "#"+hexHashCode(data.nick), data.msg);
   }catch(err){
