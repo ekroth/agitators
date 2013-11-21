@@ -64,11 +64,9 @@ class Client(srv: ActorRef, client: HookupServerClient) extends Actor with Actor
 
     case w@World(_, b, p1, p2) =>  { 
       client.send(write(ClientWorld(b.box.p, p1.box.p, p2.box.p)))
-      log.info("sent pkg!")
     }
 
     case JsonMessage(m) => {
-      log.info("got msg!")
       srv ! m.extract[Move]
     }
 
