@@ -129,7 +129,7 @@ class Server extends Actor with Listeners with ActorLogging {
 
     case ReceiveTimeout => {
       val dp = w.ball match {
-        case b if (b.box.x2 <= w.plane.x1 && b.v.x < 0) || (b.box.x1 >= w.plane.x2 && b.v.x > 0) => winit.ball
+        case b if (b.box.x2 + b.box.w <= w.plane.x1 && b.v.x < 0) || (b.box.x1 - b.box.w >= w.plane.x2 && b.v.x > 0) => winit.ball
         case b if (b.box.y1 <= w.plane.y1 && b.v.y < 0) || (b.box.y2 >= w.plane.y2 && b.v.y > 0) => b.copy(v = b.v.iy)
         case b if (b.box <#> w.p1.box && b.v.x < 0)     || (b.box <#> w.p2.box && b.v.x > 0)     => b.copy(v = b.v.ix)
         case b => b
