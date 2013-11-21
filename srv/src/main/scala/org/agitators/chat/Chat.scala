@@ -1,8 +1,10 @@
 package org.agitators
+package chat
 
 import io.backchat.hookup._
 
 import akka.actor._
+import akka.routing._
 
 import org.json4s._
 import org.json4s.JsonDSL._
@@ -10,10 +12,7 @@ import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization.{read, write}
 
 object ChatProt {
-  case class Open(client: HookupServerClient)
   case class Message(nick: String, msg: String)
-  case class Close(client: HookupServerClient)
-  case class Broadcast(msg: Message)
 }
 
 class Hooker(srv: ActorRef, client: HookupServerClient) extends Actor {
@@ -22,53 +21,30 @@ class Hooker(srv: ActorRef, client: HookupServerClient) extends Actor {
 
   implicit val formats = DefaultFormats
 
-  srv ! Open(client)
+  srv ! Listen(self)
 
-  def receive = {
+  override def receive = {
 
     case Disconnected(_) => {
-      srv ! Close(client)
+      srv ! Deafen(self)
       context.stop(self)
     }
 
-    case Broadcast(m) => {
-      val str = write(m)
-      println(s"sending $str")
-      client.send(str)
-    }
+    case m: Message => client.send(write(m))
 
-    case JsonMessage(m) => {
-      val ex = m.extract[Message]
-      println(s" got $ex")
-      srv ! ex
-    }
+    case JsonMessage(m) => srv ! m.extract[Message]
 
   }
 }
 
-final class Server extends Actor {
+class Server extends Actor with Listeners {
   import scala.collection._
 
   import ChatProt._
 
-  val actors = mutable.HashMap[HookupServerClient, ActorRef]()
-
-  override def receive = {
-
-    case Open(client) => {
-      println(s"got new client $client")
-      actors(client) = sender
-    }
-
-    case Close(client) => {
-      println(s"got close $client")
-      actors -= client
-    }
-
-    case a: Message => actors foreach { x =>
-      x._2 ! Broadcast(a)
-    }
-  }
+  override def receive = listenerManagement orElse {
+    case m: Message => gossip(m)
+  } 
 
 }
 
@@ -92,5 +68,5 @@ object Chat {
    *  ......
    *  hookSrv.end
    *  system.shutdown
-   * /
+   */
 }

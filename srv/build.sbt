@@ -14,3 +14,16 @@ libraryDependencies ++= Seq(
   "org.json4s" %% "json4s-jackson" % "3.2.5",
   "com.typesafe.akka" %% "akka-actor" % "2.3-M1",
   "io.backchat.hookup" %% "hookup" % "0.2.3")
+
+initialCommands in console := """
+  import akka.actor._
+  import akka.routing._
+  import akka.event.Logging
+ import org.json4s._
+ import org.json4s.JsonDSL._
+ import org.json4s.jackson.JsonMethods._
+ import org.json4s.jackson.Serialization.{read, write}
+implicit val formats = DefaultFormats
+""".stripMargin
+
+
