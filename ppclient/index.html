@@ -1,0 +1,159 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Awesome network pong</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet"></link>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			background-color: #000;
+      color: #FFF;
+		}
+	</style>
+	<script src="pixi.js"></script>
+  <script src="js/pong.js"></script>
+</head>
+<body> 
+  <div class="container" id="container" style="width:400px;">
+  <h4 id="status">idle</p>
+  <br>
+  </div>
+</body>
+  <script>
+    //make sum stuff accessible for dat logging yao
+    var s = document.getElementById("status");
+
+    var ip = "ws://192.168.1.2:3000";
+    //make that bitch accessible in the larger scope man.
+    var socket;
+    var stage = new PIXI.Stage(0x000000);
+    // create a renderer instance
+    var renderer = PIXI.autoDetectRenderer(400, 300);
+    // add the renderer view element to the DOM
+    document.getElementById("container").appendChild(renderer.view);
+    requestAnimFrame(animate);
+    
+
+    
+    var texture = PIXI.Texture.fromImage("img/pinne.png");
+    var ballTexture = PIXI.Texture.fromImage("img/boll.png");
+
+    // create a new Sprite using the texture
+    var p1 = new PIXI.Sprite(texture);
+    var p2 = new PIXI.Sprite(texture);
+    var ball = new PIXI.Sprite(ballTexture); 
+
+    // center the sprites anchor point
+    p1.anchor.x = 0;
+    p1.anchor.y = 1;
+    p2.anchor.x = 0;
+    p2.anchor.y = 1;
+    ball.anchor.x = 0;
+    ball.anchor.y = 0;
+    
+    // move the sprite t the center of the screen
+    p1.position.x = 20;
+    p1.position.y = 150;
+
+    p2.position.x = 380;
+    p2.position.y = 150;
+
+    ball.position.x = 200;
+    ball.position.y = 150;
+
+    p1.rotation = Math.PI*0.5;
+    p2.rotation = Math.PI*0.5;
+
+    stage.addChild(p1);
+    stage.addChild(p2);
+    stage.addChild(ball);
+
+    function mkWorld(p1y,p2y,bx,by) {
+      return  '{"b":{"x":'+ bx +',"y":'+ by +'},"p1":{"x":0,"y":'+p1y+'},"p2":{"x":0,"y":'+p2y+'}}';
+    }
+
+    
+    
+    
+      window.onkeydown = function(e) {
+      var key = e.keyCode ? e.keyCode : e.which;
+      if (key == 38) {
+        send('{"dx":0,"dy":-15}');
+      }else if (key == 40) {
+        send('{"dx":0,"dy":15}');
+      }
+/*      }else if(key == 39) { 
+        send('{"dx":10,"dy":0}');
+      } else if(key==37) { 
+        send('{"dx":-10,"dy":0}');
+      }*/
+    }
+
+    function animate() {
+        requestAnimFrame( animate );
+        renderer.render(stage);
+    }
+
+    /*
+    =====================NETWORK CODE=======================
+    */
+
+    function send(text) {
+      socket.send(text); 
+      //log("SENDING: "+text);
+    }
+    
+
+    function connect() {
+        log("connecting to: " + ip);
+      try {
+        socket = new WebSocket(ip);
+      } catch(e) {
+        log("connection failed");
+      }    
+      socket.onopen = function(evt) {onOpen(evt)};
+      socket.onclose = function(evt) {onClose(evt)};
+      socket.onmessage = function(evt) {onMessage(evt)};
+      socket.onerror = function(evt) {onError(evt)};
+    }
+    
+    function onClose(evt) {
+      log("disconnected: " + evt);
+    }
+
+    function onOpen(evt) {
+      log("connected to "+ip);
+    }
+
+    function onError(evt) {
+      log("Error: " + evt);
+    }
+
+    function onMessage(evt) {
+      //log("data: "+evt.data);
+      var data = JSON.parse(evt.data);
+      p1y = data.p1.y;
+      p2y = data.p2.y;
+      bx = data.b.x;
+      by = data.b.y;
+      p1x = data.p1.x;
+      p2x = data.p2.x;
+      p1.position.x = data.p1.x;
+      p2.position.x = data.p2.x; 
+      p2.position.y = p2y;
+      p1.position.y = p1y;
+      ball.position.x = bx;
+      ball.position.y = by;
+//      log("M: p1: x:" + p1x +"y:" + p1y + "p2: x:"+ p2x + "y:" + p2y + " bx: "+ bx + " by: "+ by); 
+    }
+    
+
+    function log(text) {
+      s.innerHTML=text;
+      console.log(text);
+    }
+    
+    window.addEventListener("load",connect,false);
+  </script>
+</html>
