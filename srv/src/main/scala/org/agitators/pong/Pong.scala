@@ -62,10 +62,13 @@ class Client(srv: ActorRef, client: HookupServerClient) extends Actor with Actor
       context.stop(self)
     }
 
-    case w@World(_, b, p1, p2) => client.send(write(ClientWorld(b.box.p, p1.box.p, p2.box.p)))
+    case w@World(_, b, p1, p2) =>  { 
+      client.send(write(ClientWorld(b.box.p, p1.box.p, p2.box.p)))
+      log.info("sent pkg!")
+    }
 
     case JsonMessage(m) => {
-      Thread.sleep(50)
+      log.info("got msg!")
       srv ! m.extract[Move]
     }
 
@@ -78,6 +81,9 @@ class Server extends Actor with Listeners with ActorLogging {
 
   import PongProt._
 
+  val updateDelay = 20
+  var lastUpdate: Long = 0
+
   val winit = World(
     Rect(Vec2(0, 0), 400, 300), 
     Ball(Rect(Vec2(200, 150), 30, 30), Vec2(-10, 10)),
@@ -89,7 +95,7 @@ class Server extends Actor with Listeners with ActorLogging {
   var p1: Option[ActorRef] = None
   var p2: Option[ActorRef] = None
 
-  context.setReceiveTimeout(50 millisecond)
+  context.setReceiveTimeout(20 millisecond)
 
   override def receive = listenerManagement orElse {
     case Connect() => {
@@ -125,9 +131,18 @@ class Server extends Actor with Listeners with ActorLogging {
           w = w.copy(p2 = t)
         }
       }
+
+      update()
     }
 
     case ReceiveTimeout => {
+      update()
+    }
+  } 
+
+  def update() {
+    if (System.currentTimeMillis - lastUpdate >= updateDelay) {
+      lastUpdate = System.currentTimeMillis
       val dp = w.ball match {
         case b if (b.box.x2 + b.box.w <= w.plane.x1 && b.v.x < 0) || (b.box.x1 - b.box.w >= w.plane.x2 && b.v.x > 0) => winit.ball
         case b if (b.box.y1 <= w.plane.y1 && b.v.y < 0) || (b.box.y2 >= w.plane.y2 && b.v.y > 0) => b.copy(v = b.v.iy)
@@ -138,7 +153,7 @@ class Server extends Actor with Listeners with ActorLogging {
       w = w.copy(ball = dp.moved)
       gossip(w)
     }
-  } 
+  }
 }
 
 object Pong {
